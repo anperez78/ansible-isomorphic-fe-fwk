@@ -1,0 +1,77 @@
+---
+ - name: install git package
+   apt: name=git update_cache=yes state=latest
+
+ - name: install dependencies to compile and install native addons from npm
+   apt: pkg="build-essential" update_cache=yes cache_valid_time=86400 state=present
+
+ - name: Create directory under /opt for isomorphic-frontend-framework
+   file: path=/opt/isomorphic-frontend-framework state=directory mode=755
+
+ - name: Git checkout from github
+   git: repo=https://github.com/anperez78/isomorphic-frontend-framework.git dest=/opt/isomorphic-frontend-framework accept_hostkey=true update=yes force=yes
+
+ - name: Install packages based on package.json
+   npm: path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp" node.js package globally.
+   npm: name=gulp global=yes
+
+ - name: Install "gulp" node.js package locally.
+   npm: name=gulp path=/opt/isomorphic-frontend-framework
+
+ - name: Install "browserify" node.js package locally.
+   npm: name=browserify path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-util" node.js package locally.
+   npm: name=gulp-util path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-jshint" node.js package locally.
+   npm: name=gulp-jshint path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-nodemon" node.js package locally.
+   npm: name=gulp-nodemon path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-plumber" node.js package locally.
+   npm: name=gulp-plumber path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-react" node.js package locally.
+   npm: name=gulp-react path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-sass" node.js package locally.
+   npm: name=gulp-sass path=/opt/isomorphic-frontend-framework
+
+ - name: Install "vinyl-source-stream" node.js package locally.
+   npm: name=vinyl-source-stream path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-streamify" node.js package locally.
+   npm: name=gulp-streamify path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-uglify" node.js package locally.
+   npm: name=gulp-uglify path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-mocha" node.js package locally.
+   npm: name=gulp-mocha path=/opt/isomorphic-frontend-framework
+
+ - name: Install "del" node.js package locally.
+   npm: name=del path=/opt/isomorphic-frontend-framework
+
+ - name: Install "gulp-exit" node.js package locally.
+   npm: name=gulp-exit path=/opt/isomorphic-frontend-framework
+
+ - name: Install "jshint-stylish" node.js package locally.
+   npm: name=jshint-stylish path=/opt/isomorphic-frontend-framework
+
+ - name: Compile node.js application
+   command: gulp bundle chdir=/opt/isomorphic-frontend-framework
+
+ - name: Check list of Node.js apps running.
+   sudo: False
+   command: forever list
+   register: forever_list
+   changed_when: false
+
+ - name: Start Node.js app.
+   sudo: False
+   command: forever start -c '/opt/isomorphic-frontend-framework/node_modules/.bin/babel-node' /opt/isomorphic-frontend-framework/lib/server.js
+   when: "forever_list.stdout.find('/opt/isomorphic-frontend-framework/lib/server.js') == -1"
